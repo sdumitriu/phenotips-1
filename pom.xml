@@ -582,6 +582,16 @@
               <method>org.xwiki.security.authorization.Right getGrantedRight()</method>
               <justification>New API method bringing XWiki Rights into PhenoTips Permissions.</justification>
             </difference>
+            <difference>
+              <className>org/phenotips/measurements/MeasurementHandler</className>
+              <differenceType>7012</differenceType>
+              <method>java.lang.String getName()</method>
+            </difference>
+            <difference>
+              <className>org/phenotips/measurements/MeasurementHandler</className>
+              <differenceType>7012</differenceType>
+              <method>java.lang.String getUnit()</method>
+            </difference>
           </ignored>
           <excludes>
             <exclude>**/internal/**</exclude>
