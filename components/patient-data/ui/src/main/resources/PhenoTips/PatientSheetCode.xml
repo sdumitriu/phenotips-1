@@ -3734,7 +3734,7 @@ document.observe('xwiki:dom:loaded', function()
         'measurement': this.el.select('[name$=type]')[0].value,
         'value': thisValue,
         'age': this.parent._ageEl.value,
-        'sex': $$('[name$=gender]:checked')[0].value,
+        'sex': ($$('[name$=gender]:checked')[0] || {value:''}).value,
       };
       // Normalize sex for the purposes of measurements, assuming other == male
       if (fetchParams.sex.length &amp;&amp; fetchParams.sex.toLowerCase() != 'f') {
