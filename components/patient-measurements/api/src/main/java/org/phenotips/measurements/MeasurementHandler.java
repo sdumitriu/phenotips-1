@@ -17,9 +17,12 @@
  */
 package org.phenotips.measurements;
 
+import org.phenotips.vocabulary.VocabularyTerm;
+
 import org.xwiki.component.annotation.Role;
 import org.xwiki.stability.Unstable;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -107,6 +110,15 @@ public interface MeasurementHandler
      * @since 1.3M2
      */
     boolean isComputed();
+
+    /**
+     * Get associated terms for this measurement with the given standard deviation value.
+     *
+     * @param standardDeviation the measurement's standard deviation value or {@code null} for all associated terms
+     * @return a list of terms
+     * @since 1.3M2
+     */
+    Collection<VocabularyTerm> getAssociatedTerms(Double standardDeviation);
 
     /**
      * Get the list of charts configured for this type of measurement.

@@ -20,6 +20,8 @@ package org.phenotips.measurements.internal;
 import org.phenotips.measurements.MeasurementHandler;
 import org.phenotips.measurements.MeasurementsChartConfiguration;
 import org.phenotips.measurements.MeasurementsChartConfigurationsFactory;
+import org.phenotips.vocabulary.VocabularyManager;
+import org.phenotips.vocabulary.VocabularyTerm;
 
 import org.xwiki.component.phase.Initializable;
 import org.xwiki.component.phase.InitializationException;
@@ -30,7 +32,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.ResourceBundle;
 
 import javax.inject.Inject;
 
@@ -90,6 +94,10 @@ public abstract class AbstractMeasurementHandler implements MeasurementHandler, 
     /** Provides access to the charts configurations. */
     @Inject
     private MeasurementsChartConfigurationsFactory settingsFactory;
+
+    /** Used to resolve vocabulary terms for associated phenotypes. */
+    @Inject
+    private VocabularyManager vocabularyManager;
 
     /**
      * Table storing the LMS triplets for each month of the normal development of boys corresponding to this measurement
@@ -181,6 +189,51 @@ public abstract class AbstractMeasurementHandler implements MeasurementHandler, 
     {
         readData();
         this.chartConfigurations = this.settingsFactory.loadConfigurationsForMeasurementType(getName());
+    }
+
+    @Override
+    public Collection<VocabularyTerm> getAssociatedTerms(Double standardDeviation)
+    {
+        ResourceBundle configuration = ResourceBundle.getBundle("measurementsAssociatedTerms");
+        List<VocabularyTerm> terms = new ArrayList<>();
+
+        if (null == standardDeviation || standardDeviation <= -3) {
+            addResolvedTermsToList(configuration, this.getName(), "extremeBelowNormal", terms);
+        }
+        if (null == standardDeviation || standardDeviation <= -2) {
+            addResolvedTermsToList(configuration, this.getName(), "belowNormal", terms);
+        }
+        if (null == standardDeviation || standardDeviation >= 2) {
+            addResolvedTermsToList(configuration, this.getName(), "aboveNormal", terms);
+        }
+        if (null == standardDeviation || standardDeviation >= 3) {
+            addResolvedTermsToList(configuration, this.getName(), "extremeAboveNormal", terms);
+        }
+
+        return terms;
+    }
+
+    /**
+     * Convenience method to add present, resolvable vocabulary terms for a given measurement to the given list.
+     *
+     * @param config the configuration resource bundle
+     * @param measurement the name of the measurement
+     * @param key the fuzzy value name key to check, e.g. "aboveNormal"
+     * @param list the list to which present and resolvable terms should be added
+     */
+    private void addResolvedTermsToList(ResourceBundle config, String measurement, String key,
+                                        List<VocabularyTerm> list)
+    {
+        String configKey = "measurements." + measurement + '.' + key;
+        if (config.containsKey(configKey)) {
+            String[] termStrs = config.getString(configKey).split(";");
+            for (String termStr : termStrs) {
+                VocabularyTerm term = this.vocabularyManager.resolveTerm(termStr);
+                if (term != null) {
+                    list.add(term);
+                }
+            }
+        }
     }
 
     /**

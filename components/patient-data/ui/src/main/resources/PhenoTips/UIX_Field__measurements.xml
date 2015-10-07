@@ -432,15 +432,7 @@ $xwiki.ssx.use('PhenoTips.UIX_Field__measurements')##
 #macro (measurementRow $handler $displayName $side $obj $proto)
 #set ($name = $handler.getName())
 #set ($unit = $handler.getUnit())
-#set ($computationDeps = $handler.getComputationDependencies())
-#foreach ($dep in $computationDeps)
-  #if ("$!depsStr" == "")
-    #set ($depsStr = "$!{dep}")
-  #else
-    #set ($depsStr = "$!{depsStr} $!{dep}")
-  #end
-#end
-(% class="measurement-row $name#if ($computationDeps.size()) computed#end"#if ($computationDeps.size()) data-computation-deps="$depsStr"#end%)(((
+(% class="measurement-row $name#if ($handler.getComputationDependencies().size()) computed#end"%)(((
   #if ($proto)
     #set ($disabled = ' disabled="disabled"')
     #set ($id = '[id]')
