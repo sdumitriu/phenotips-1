@@ -1545,7 +1545,7 @@ define([
             return {"moved": movedNodes};
         },
 
-        clearAll: function()
+        clearAll: function(isFamilyPage)
         {
             var removedNodes = this._getAllNodes();
 
