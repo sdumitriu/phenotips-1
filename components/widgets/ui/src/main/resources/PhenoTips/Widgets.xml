@@ -5082,7 +5082,7 @@ document.observe("xwiki:dom:updated", init);
       return (text || "").match(this.regexp);
     },
     getValue : function(text) {
-      if ((text || "").match(this.regexp)) {
+      if (this.match(text)) {
         var result = 0;
         var _this = this;
         var item;
@@ -5098,7 +5098,7 @@ document.observe("xwiki:dom:updated", init);
       }
     },
     format : function(text) {
-      if ((text || "").match(this.regexp)) {
+      if (this.match(text)) {
         var result = text;
         var _this = this;
         ['y', 'm', 'w', 'd'].each(function(unit) {
