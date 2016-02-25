@@ -806,6 +806,12 @@ var PhenoTips = (function(PhenoTips) {
         return existingElement;
       }
     },
+
+    destroy: function($super) {
+      this._selectAssocPhenotypes([]);
+
+      $super();
+    }
   });
 
   widgets.ArmspanMeasurementSetRow = Class.create(widgets.MeasurementSetRow, {
