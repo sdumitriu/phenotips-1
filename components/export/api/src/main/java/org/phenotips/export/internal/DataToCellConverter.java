@@ -72,7 +72,7 @@ public class DataToCellConverter
     public static final Integer charactersPerLine = 100;
 
     private TranslationManager translationManager;
-    
+
     private Logger logger = LoggerFactory.getLogger(DataToCellConverter.class);
 
     public DataToCellConverter()
@@ -89,14 +89,14 @@ public class DataToCellConverter
     {
         String sectionName = "phenotype";
         String[] fieldIds = { "phenotype", "phenotype_code", "phenotype_combined", "phenotype_code_meta",
-            "phenotype_meta", "negative_phenotype", "negative_phenotype_code", "negative_phenotype_combined",
-            "phenotype_by_section" };
+        "phenotype_meta", "negative_phenotype", "negative_phenotype_code", "negative_phenotype_combined",
+        "phenotype_by_section" };
         // FIXME These will not work properly in different configurations
         String[][] headerIds =
-            { { "phenotype", "positive" }, { "code", "positive" }, { "phenotype", "code", "positive" },
-                { "meta_code", "phenotype", "positive" }, { "meta", "phenotype", "positive" },
-                { "negative", "phenotype" }, { "negative", "code" }, { "negative", "code", "phenotype" },
-                { "category" } };
+        { { "phenotype", "positive" }, { "code", "positive" }, { "phenotype", "code", "positive" },
+        { "meta_code", "phenotype", "positive" }, { "meta", "phenotype", "positive" },
+        { "negative", "phenotype" }, { "negative", "code" }, { "negative", "code", "phenotype" },
+        { "category" } };
 
         Set<String> present = addHeaders(fieldIds, headerIds, enabledFields);
         this.enabledHeaderIdsBySection.put(sectionName, present);
@@ -262,26 +262,26 @@ public class DataToCellConverter
     {
         String sectionName = "variants";
         String[] fieldIds =
-            { "variants", "variants_protein", "variants_transcript", "variants_dbsnp", "variants_zygosity",
-            "variants_effect", "variants_interpretation", "variants_inheritance", "variants_evidence", 
-            "variants_segregation", "variants_sanger" };
+        { "variants", "variants_protein", "variants_transcript", "variants_dbsnp", "variants_zygosity",
+        "variants_effect", "variants_interpretation", "variants_inheritance", "variants_evidence",
+        "variants_segregation", "variants_sanger" };
         // FIXME These will not work properly in different configurations
         String[][] headerIds =
-            {
-            { "cdna" },
-            { "protein", "cdna" },
-            { "transcript", "protein", "cdna" },
-            { "dbsnp", "transcript", "protein", "cdna" },
-            { "zygosity", "dbsnp", "transcript", "protein", "cdna" },
-            { "effect", "zygosity", "dbsnp", "transcript", "protein", "cdna" },
-            { "interpretation", "effect", "zygosity", "dbsnp", "transcript", "protein", "cdna" },
-            { "inheritance", "interpretation", "effect", "zygosity", "dbsnp", "transcript", "protein", "cdna" },
-            { "evidence", "inheritance", "interpretation", "effect", "zygosity", "dbsnp", "transcript", "protein",
-            "cdna" },
-            { "segregation", "evidence", "inheritance", "interpretation", "effect", "zygosity", "dbsnp", "transcript",
-            "protein", "cdna" },
-            { "sanger", "segregation", "evidence", "inheritance", "interpretation", "effect", "zygosity", "dbsnp",
-            "transcript", "protein", "cdna" } };
+        {
+        { "cdna" },
+        { "protein", "cdna" },
+        { "transcript", "protein", "cdna" },
+        { "dbsnp", "transcript", "protein", "cdna" },
+        { "zygosity", "dbsnp", "transcript", "protein", "cdna" },
+        { "effect", "zygosity", "dbsnp", "transcript", "protein", "cdna" },
+        { "interpretation", "effect", "zygosity", "dbsnp", "transcript", "protein", "cdna" },
+        { "inheritance", "interpretation", "effect", "zygosity", "dbsnp", "transcript", "protein", "cdna" },
+        { "evidence", "inheritance", "interpretation", "effect", "zygosity", "dbsnp", "transcript", "protein",
+        "cdna" },
+        { "segregation", "evidence", "inheritance", "interpretation", "effect", "zygosity", "dbsnp", "transcript",
+        "protein", "cdna" },
+        { "sanger", "segregation", "evidence", "inheritance", "interpretation", "effect", "zygosity", "dbsnp",
+        "transcript", "protein", "cdna" } };
         Set<String> present = addHeaders(fieldIds, headerIds, enabledFields);
         this.enabledHeaderIdsBySection.put(sectionName, present);
     }
@@ -292,8 +292,8 @@ public class DataToCellConverter
         String[] fieldIds = { "genes", "genes_status", "genes_strategy", "genes_comments" };
         // FIXME These will not work properly in different configurations
         String[][] headerIds =
-            { { "genes" }, { "status", "genes" }, { "strategy", "status", "genes" },
-            { "comments", "strategy", "status", "genes" } };
+        { { "genes" }, { "status", "genes" }, { "strategy", "status", "genes" },
+        { "comments", "strategy", "status", "genes" } };
         Set<String> present = addHeaders(fieldIds, headerIds, enabledFields);
         this.enabledHeaderIdsBySection.put(sectionName, present);
     }
@@ -981,7 +981,7 @@ public class DataToCellConverter
     {
         String sectionName = "prenatalPhenotype";
         String[] fieldIds = { "prenatal_phenotype", "prenatal_phenotype_code", "prenatal_phenotype_combined",
-            "negative_prenatal_phenotype", "prenatal_phenotype_by_section" };
+        "negative_prenatal_phenotype", "prenatal_phenotype_by_section" };
         /* FIXME These will not work properly in different configurations */
         String[][] headerIds = { { "phenotype" }, { "code" }, { "phenotype", "code" }, { "negative" }, { "category" } };
         Set<String> present = addHeaders(fieldIds, headerIds, enabledFields);
