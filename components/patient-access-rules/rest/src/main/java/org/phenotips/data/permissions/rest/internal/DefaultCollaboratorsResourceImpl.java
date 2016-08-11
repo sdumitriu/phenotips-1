@@ -246,7 +246,7 @@ public class DefaultCollaboratorsResourceImpl extends XWikiResource implements C
                 throw new WebApplicationException(Response.Status.NOT_FOUND);
             }
             AccessLevel level = this.getAccessLevelFromString(collaboratorInfo.getLevel());
-            Collaborator collaborator = new DefaultCollaborator(collaboratorReference, level, null);
+            Collaborator collaborator = new DefaultCollaborator(collaboratorReference, level);
             collaborators.add(collaborator);
         }
         return collaborators;
