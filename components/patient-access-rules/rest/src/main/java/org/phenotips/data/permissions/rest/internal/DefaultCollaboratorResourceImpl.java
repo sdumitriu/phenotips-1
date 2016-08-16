@@ -20,6 +20,7 @@ package org.phenotips.data.permissions.rest.internal;
 import org.phenotips.data.Patient;
 import org.phenotips.data.permissions.Collaborator;
 import org.phenotips.data.permissions.PatientAccess;
+import org.phenotips.data.permissions.PermissionsManager;
 import org.phenotips.data.permissions.rest.CollaboratorResource;
 import org.phenotips.data.permissions.rest.CollaboratorsResource;
 import org.phenotips.data.permissions.rest.DomainObjectFactory;
@@ -46,7 +47,6 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang3.StringUtils;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 
 /**
@@ -60,8 +60,6 @@ import org.slf4j.Logger;
 @Singleton
 public class DefaultCollaboratorResourceImpl extends XWikiResource implements CollaboratorResource
 {
-    private static final String LEVEL = "level";
-
     @Inject
     private Logger logger;
 
@@ -76,10 +74,14 @@ public class DefaultCollaboratorResourceImpl extends XWikiResource implements Co
     private DomainObjectFactory factory;
 
     @Inject
-    private Container container;
+    private PermissionsManager manager;
 
     @Inject
     private RESTActionResolver restActionResolver;
+
+    /** Needed for retrieving the `owner` parameter during the PUT request (as part of setting a new owner). */
+    @Inject
+    private Container container;
 
     @Override
     public CollaboratorRepresentation getCollaborator(String patientId, String collaboratorId)
@@ -87,7 +89,7 @@ public class DefaultCollaboratorResourceImpl extends XWikiResource implements Co
         this.logger.debug("Retrieving collaborator with id [{}] of patient record [{}] via REST", collaboratorId,
             patientId);
         // besides getting the patient, checks that the user has view access
-        PatientAccessContext patientAccessContext = this.secureContextFactory.getContext(patientId, "view");
+        PatientAccessContext patientAccessContext = this.secureContextFactory.getReadContext(patientId);
 
         CollaboratorRepresentation result;
         try {
@@ -111,28 +113,25 @@ public class DefaultCollaboratorResourceImpl extends XWikiResource implements Co
     }
 
     @Override
-    public Response putLevelWithJson(String json, String patientId, String collaboratorId)
+    public Response setLevel(CollaboratorRepresentation collaborator, String patientId, String collaboratorId)
     {
-        String level;
-        try {
-            JSONObject jsonObject = new JSONObject(json);
-            level = jsonObject.optString(LEVEL);
-        } catch (Exception ex) {
-            this.logger.debug("Changing collaborator's access level failed: the JSON was not properly formatted");
-            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+        String level = collaborator.getLevel();
+        if (StringUtils.isNotBlank(level)) {
+            try {
+                return setLevel(collaboratorId.trim(), level, patientId);
+            } catch (Exception ex) {
+                this.logger.debug("Changing collaborator's access level failed: the JSON was not properly formatted");
+            }
         }
-        return putLevel(collaboratorId.trim(), level, patientId);
+        throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
 
     @Override
-    public Response putLevelWithForm(String patientId, String collaboratorId)
+    public Response setLevel(String patientId, String collaboratorId)
     {
-        Object levelInRequest = this.container.getRequest().getProperty(LEVEL);
-        if (levelInRequest instanceof String) {
-            String level = levelInRequest.toString().trim();
-            if (StringUtils.isNotBlank(level)) {
-                return putLevel(collaboratorId, level, patientId);
-            }
+        String level = (String) this.container.getRequest().getProperty("level");
+        if (StringUtils.isNotBlank(level)) {
+            return setLevel(collaboratorId, level, patientId);
         }
         this.logger.error("The id, permissions level, or both were not provided or are invalid");
         throw new WebApplicationException(Response.Status.BAD_REQUEST);
@@ -144,7 +143,7 @@ public class DefaultCollaboratorResourceImpl extends XWikiResource implements Co
         this.logger.debug("Removing collaborator with id [{}] from patient record [{}] via REST", collaboratorId,
             patientId);
         // besides getting the patient, checks that the user has manage access
-        PatientAccessContext patientAccessContext = this.secureContextFactory.getContext(patientId, "manage");
+        PatientAccessContext patientAccessContext = this.secureContextFactory.getWriteContext(patientId);
 
         PatientAccess patientAccess = patientAccessContext.getPatientAccess();
         EntityReference collaboratorReference = this.userOrGroupResolver.resolve(collaboratorId);
@@ -183,8 +182,13 @@ public class DefaultCollaboratorResourceImpl extends XWikiResource implements Co
         throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
 
-    private Response putLevel(String collaboratorId, String accessLevelName, String patientId)
+    private Response setLevel(String collaboratorId, String accessLevelName, String patientId)
     {
-        throw new UnsupportedOperationException();
+        PatientAccessContext patientAccessContext = this.secureContextFactory.getWriteContext(patientId);
+        PatientAccess patientAccess = patientAccessContext.getPatientAccess();
+
+        EntityReference collaboratorReference = this.userOrGroupResolver.resolve(collaboratorId);
+        patientAccess.addCollaborator(collaboratorReference, this.manager.resolveAccessLevel(accessLevelName));
+        return Response.ok().build();
     }
 }

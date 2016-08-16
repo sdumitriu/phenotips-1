@@ -15,34 +15,27 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see http://www.gnu.org/licenses/
  */
-package org.phenotips.data.permissions.internal.access;
+package org.phenotips.data.permissions.rest;
 
-import org.phenotips.data.permissions.internal.AbstractAccessLevel;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import org.xwiki.security.authorization.Right;
+import javax.ws.rs.HttpMethod;
 
 /**
+ * Indicates that the annotated method responds to HTTP PATCH requests.
+ *
  * @version $Id$
+ * @since 1.3M2
  */
-public class MockAccessLevel extends AbstractAccessLevel
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+@HttpMethod("PATCH")
+public @interface PATCH
 {
-    private String name;
-
-    public MockAccessLevel(String name, int permissiveness, boolean assignable)
-    {
-        super(permissiveness, assignable);
-        this.name = name;
-    }
-
-    @Override
-    public String getName()
-    {
-        return this.name;
-    }
-
-    @Override
-    public Right getGrantedRight()
-    {
-        return Right.ILLEGAL;
-    }
+    // This is a marker annotation, no body needed
 }

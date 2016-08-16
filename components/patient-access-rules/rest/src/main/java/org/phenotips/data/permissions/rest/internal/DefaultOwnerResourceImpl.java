@@ -45,7 +45,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang3.StringUtils;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 
 /**
@@ -73,18 +72,17 @@ public class DefaultOwnerResourceImpl extends XWikiResource implements OwnerReso
     private DomainObjectFactory factory;
 
     @Inject
-    private RESTActionResolver restActionResolver;
-
-    /** Needed for retrieving the `owner` parameter during the PUT request (as part of setting a new owner). */
-    @Inject
     private Container container;
+
+    @Inject
+    private RESTActionResolver restActionResolver;
 
     @Override
     public OwnerRepresentation getOwner(String patientId)
     {
         this.logger.debug("Retrieving patient record's owner [{}] via REST", patientId);
         // besides getting the patient, checks that the user has view access
-        PatientAccessContext patientAccessContext = this.secureContextFactory.getContext(patientId, "view");
+        PatientAccessContext patientAccessContext = this.secureContextFactory.getReadContext(patientId);
 
         OwnerRepresentation result = this.factory.createOwnerRepresentation(patientAccessContext.getPatient());
 
@@ -101,11 +99,10 @@ public class DefaultOwnerResourceImpl extends XWikiResource implements OwnerReso
     }
 
     @Override
-    public Response putOwnerWithJson(String json, String patientId)
+    public Response setOwner(OwnerRepresentation owner, String patientId)
     {
         try {
-            String id = new JSONObject(json).getString("id");
-            return putOwner(id, patientId);
+            return putOwner(owner.getId(), patientId);
         } catch (Exception ex) {
             this.logger.error("The json was not properly formatted", ex.getMessage());
             throw new WebApplicationException(Status.BAD_REQUEST);
@@ -113,14 +110,11 @@ public class DefaultOwnerResourceImpl extends XWikiResource implements OwnerReso
     }
 
     @Override
-    public Response putOwnerWithForm(String patientId)
+    public Response setOwner(String patientId)
     {
-        Object ownerIdInRequest = this.container.getRequest().getProperty("owner");
-        if (ownerIdInRequest instanceof String) {
-            String ownerId = ownerIdInRequest.toString();
-            if (StringUtils.isNotBlank(ownerId)) {
-                return putOwner(ownerId, patientId);
-            }
+        String ownerId = (String) this.container.getRequest().getProperty("owner");
+        if (StringUtils.isNotBlank(ownerId)) {
+            return putOwner(ownerId, patientId);
         }
         this.logger.error("The owner id was not provided or is invalid");
         throw new WebApplicationException(Status.BAD_REQUEST);
@@ -134,7 +128,7 @@ public class DefaultOwnerResourceImpl extends XWikiResource implements OwnerReso
         }
         this.logger.debug("Setting owner of the patient record [{}] to [{}] via REST", patientId, ownerId);
         // besides getting the patient, checks that the current user has manage access
-        PatientAccessContext patientAccessContext = this.secureContextFactory.getContext(patientId, "manage");
+        PatientAccessContext patientAccessContext = this.secureContextFactory.getWriteContext(patientId);
 
         EntityReference ownerReference = this.userOrGroupResolver.resolve(ownerId);
         if (ownerReference == null) {

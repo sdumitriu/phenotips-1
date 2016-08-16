@@ -43,10 +43,10 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang3.StringUtils;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 
 /**
@@ -83,7 +83,7 @@ public class DefaultVisibilityResourceImpl extends XWikiResource implements Visi
     {
         this.logger.debug("Retrieving patient record's visibility [{}] via REST", patientId);
         // besides getting the patient, checks that the user has view access
-        PatientAccessContext patientAccessContext = this.secureContextFactory.getContext(patientId, "view");
+        PatientAccessContext patientAccessContext = this.secureContextFactory.getReadContext(patientId);
 
         VisibilityRepresentation result =
             this.factory.createVisibilityRepresentation(patientAccessContext.getPatient());
@@ -105,32 +105,31 @@ public class DefaultVisibilityResourceImpl extends XWikiResource implements Visi
     }
 
     @Override
-    public Response putVisibilityWithJson(String json, String patientId)
+    public Response setVisibility(VisibilityRepresentation visibility, String patientId)
     {
         try {
-            String visibility = new JSONObject(json).getString("level");
-            return putVisibility(visibility, patientId);
+            String level = visibility.getLevel();
+            return setVisibility(level, patientId);
         } catch (Exception ex) {
             this.logger.error("The json was not properly formatted", ex.getMessage());
-            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+            return Response.status(Response.Status.BAD_REQUEST.getStatusCode())
+                .type(MediaType.TEXT_PLAIN_TYPE)
+                .entity("Unknown visibility level: " + visibility.getLevel()).build();
         }
     }
 
     @Override
-    public Response putVisibilityWithForm(String patientId)
+    public Response setVisibility(String patientId)
     {
-        Object visibilityInRequest = this.container.getRequest().getProperty("visibility");
-        if (visibilityInRequest instanceof String) {
-            String visibility = visibilityInRequest.toString();
-            if (StringUtils.isNotBlank(visibility)) {
-                return putVisibility(visibility, patientId);
-            }
+        String visibility = (String) this.container.getRequest().getProperty("visibility");
+        if (StringUtils.isNotBlank(visibility)) {
+            return setVisibility(visibility, patientId);
         }
         this.logger.error("The visibility level was not provided or is invalid");
         throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
 
-    private Response putVisibility(String visibilityNameRaw, String patientId)
+    private Response setVisibility(String visibilityNameRaw, String patientId)
     {
         if (StringUtils.isBlank(visibilityNameRaw)) {
             this.logger.error("The visibility level was not provided");
@@ -153,7 +152,7 @@ public class DefaultVisibilityResourceImpl extends XWikiResource implements Visi
         this.logger.debug(
             "Setting the visibility of the patient record [{}] to [{}] via REST", patientId, visibilityName);
         // besides getting the patient, checks that the user has manage access
-        PatientAccessContext patientAccessContext = this.secureContextFactory.getContext(patientId, "manage");
+        PatientAccessContext patientAccessContext = this.secureContextFactory.getWriteContext(patientId);
 
         PatientAccess patientAccess = patientAccessContext.getPatientAccess();
         if (!patientAccess.setVisibility(visibility)) {
