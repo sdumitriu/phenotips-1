@@ -39,6 +39,7 @@ import org.xwiki.container.Container;
 import org.xwiki.model.reference.DocumentReferenceResolver;
 import org.xwiki.model.reference.EntityReference;
 import org.xwiki.rest.XWikiResource;
+import org.xwiki.users.User;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -249,6 +250,18 @@ public class DefaultCollaboratorsResourceImpl extends XWikiResource implements C
         public AccessLevel getAccessLevel()
         {
             return this.access;
+        }
+
+        @Override
+        public Collection<String> getAllUserNames()
+        {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public boolean isUserIncluded(User user)
+        {
+            return false;
         }
     }
 }
