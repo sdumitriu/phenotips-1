@@ -67,7 +67,21 @@ public class DefaultVocabularyManager implements VocabularyManager, Initializabl
     @Override
     public VocabularyTerm resolveTerm(String termId)
     {
-        Vocabulary vocabulary = getVocabularyForTerm(termId);
+        String vocabularyId = StringUtils.substringBefore(termId, ":");
+        return resolveTerm(vocabularyId, termId);
+    }
+
+    /**
+     * Retrieve a term given its owner vocabulary. The owner vocabulary's id is specified.
+     * @param vocabularyId the identifier for the owner vocabulary, for example {@code HGNC}
+     * @param termId the term identifier, in the format {@code <vocabulary prefix>:<term id>}, for example
+     *               {@code HP:0002066}
+     * @return the requested term, or {@code null} if the term doesn't exist in the vocabulary, or no matching
+     *         vocabulary is available
+     */
+    public VocabularyTerm resolveTerm(String vocabularyId, String termId)
+    {
+        Vocabulary vocabulary = StringUtils.isNotBlank(vocabularyId) ? getVocabulary(vocabularyId) : null;
         if (vocabulary != null) {
             return vocabulary.getTerm(termId);
         }
