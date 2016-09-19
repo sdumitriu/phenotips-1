@@ -187,6 +187,8 @@
     insertBeforeSuggestions: null,
     // Should id be displayed or hidden
     displayId: false,
+    // Should the id be stored as the value
+    saveAsId: false,
     // Should value be displayed as a hint
     displayValue: false,
     // Display value prefix text
@@ -1214,7 +1216,7 @@
       if (!event.stopped) {
         if (!silent) {
           this.sInput = selection;
-          this.fld.value = newFieldValue || this.fld.defaultValue || '';
+          this.fld.value = this.options.saveAsId ? data.id : newFieldValue || this.fld.defaultValue || '';
           this.fld.focus();
           this.clearSuggestions();
         }
@@ -4094,7 +4096,7 @@ document.observe("xwiki:dom:updated", init);
           };
 
           c.update(
-                    elt('span', 'info').insert(elt('span', 'key').update(json.symbol))
+                    elt('span', 'info').insert(elt('span', 'key').update(json.id))
                                        .insert(' ')
                                        .insert(elt('span', 'value').update(json.name))
                   );

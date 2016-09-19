@@ -64,10 +64,14 @@
 #end
 
 #set ($result = {
-  'symbol' : $term.symbol,
   'name' : $term.name,
   'external_ids' : {'genecards_id' :  $term.symbol}
 })
+#if ($term.ensembl_gene_id &amp;&amp; !$term.ensembl_gene_id.isEmpty())
+  #set ($result.id = $term.ensembl_gene_id.get(0))
+#else
+  #set ($result.id = $term.symbol)
+#end
 #if ($term.alias_symbol)
   #set ($result.alias_symbol = $term.alias_symbol)
 #end

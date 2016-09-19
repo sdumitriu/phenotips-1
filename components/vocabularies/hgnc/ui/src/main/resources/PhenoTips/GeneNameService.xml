@@ -60,6 +60,11 @@
           'symbol' : $term.symbol,
           'external_ids' : {'genecards_id' :  $term.symbol}
         })
+        #if ($term.ensembl_gene_id &amp;&amp; !$term.ensembl_gene_id.isEmpty())
+          #set ($result.id = $term.ensembl_gene_id.get(0))
+        #else
+          #set ($result.id = $term.symbol)
+        #end
         #if ($term.alias_symbol)
           #set ($result.alias_symbol = $term.alias_symbol)
         #end
@@ -87,7 +92,13 @@
   #set ($terms = $services.vocabularies.hgnc.search("${request.q}", $max, "", ""))
   #set ($result = {'numReturned' : $terms.size(), 'docs': []})
   #foreach ($term in $terms)
-    #set ($discard = $result.docs.add({'symbol' : $term.symbol}))
+    #set ($gene_data = {'symbol' : $term.symbol})
+    #if ($term.ensembl_gene_id &amp;&amp; !$term.ensembl_gene_id.isEmpty())
+      #set ($discard = $gene_data.put('id', $term.ensembl_gene_id.get(0)))
+    #else
+      #set ($discard = $gene_data.put('id', $term.symbol))
+    #end
+    #set ($discard = $result.docs.add($gene_data))
   #end
   $jsontool.serialize($result)
 #end

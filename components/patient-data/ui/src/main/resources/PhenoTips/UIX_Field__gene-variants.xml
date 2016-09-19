@@ -169,7 +169,7 @@
   fetchGeneDetails($$('input.gene-name'), null, true);
 
   $$('input.gene-name').invoke('observe', "ms:suggest:selected", function (event) {
-    fetchGeneDetails([event.findElement()], event.memo &amp;&amp; [event.memo.value] || [], true);
+    fetchGeneDetails([event.findElement()], event.memo &amp;&amp; [event.memo.id] || [], true);
   });
 
   $$('input.gene-name').invoke('observe', 'change', function (event) {
@@ -183,7 +183,7 @@
           fetchGeneDetails(elt.select('input.gene-name'), false);
           var inputGene = elt.select('input.gene-name');
           inputGene.invoke('observe', "ms:suggest:selected", function (event) {
-            updateInfo(event.element(), event.memo.value, true);
+            updateInfo(event.element(), event.memo.id, true);
           });
           inputGene.invoke('observe', 'change', function (event) {
             updateInfo(event.element(), null, false);
@@ -291,13 +291,14 @@
             noresults: "$services.localization.render('phenotips.UIXField.genes.noMatches')",
             json: true,
             resultsParameter : "docs",
-            resultId : 'symbol',
+            resultId : 'id',
             resultValue : 'symbol',
             resultAltName : "alias_symbol",
             enableHierarchy: false,
             tooltip : 'gene-info',
             resultInfo : {},
             fadeOnClear : false,
+            saveAsId: true,
             timeout : 30000,
             parentContainer : null
   };
