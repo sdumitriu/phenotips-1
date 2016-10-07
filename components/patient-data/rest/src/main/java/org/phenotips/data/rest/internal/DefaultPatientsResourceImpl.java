@@ -159,13 +159,15 @@ public class DefaultPatientsResourceImpl extends XWikiResource implements Patien
      * @throws NullPointerException if the patient was not created
      */
     private Response addPatient(final String json) {
-        final Patient patient = this.repository.create();
+        JSONObject jsonObject;
         try {
-            patient.updateFromJSON(new JSONObject(json));
-            return buildResponse(patient);
+            jsonObject = new JSONObject(json);
         } catch (Exception ex) {
             throw new WebApplicationException(Status.BAD_REQUEST);
         }
+        final Patient patient = this.repository.create();
+        patient.updateFromJSON(jsonObject);
+        return buildResponse(patient);
     }
 
     /**
